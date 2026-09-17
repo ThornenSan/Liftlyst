@@ -1,0 +1,74 @@
+name: liftlyst
+
+services:
+  # PHP-FPM. The only service built from a Dockerfile, because it needs
+  # extensions compiled in — see docker/php/Dockerfile.
+  app:
+    build:
+      context: ./docker/php
+    volumes:
+      # This path MUST match nginx's mount below. nginx sends php-fpm a file
+      # path over FastCGI, and php-fpm opens that path in its own filesystem.
+      - ./backend:/var/www/html
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Serves static files directly; forwards .php to app:9000 over FastCGI.
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    # nginx resolves "app" at startup and refuses to boot if it can't, so it
+    # must not start first.
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:18-alpine
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_DB: liftlyst
+      POSTGRES_USER: liftlyst
+      POSTGRES_PASSWORD: "ckgn#wa202nd"
+    volumes:
+      # Postgres 18 moved PGDATA to /var/lib/postgresql/18/docker and the
+      # declared VOLUME up to /var/lib/postgresql
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U liftlyst -d liftlyst"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Fake SMTP server. Laravel sends mail to mailpit:1025 over the internal
+  # network; 8025 is the web UI where you read it.
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"
+
+volumes:
+  postgres-data:
+  redis-data:
+
+
+
+

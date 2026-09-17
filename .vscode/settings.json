@@ -1,0 +1,46 @@
+{
+  // Match the PHP running in the app container (docker/php/Dockerfile), not the
+  // PHP installed on the host, so Intelephense flags the right syntax.
+  "intelephense.environment.phpVersion": "8.4.25",
+
+  // Intelephense only knows C extensions through bundled stub files, most of
+  // which are off by default — which is why `new Redis()` shows as an undefined
+  // type even though it runs fine.
+  //
+  // This setting REPLACES the default list rather than merging with it, so the
+  // full set is spelled out here. The project-specific additions are: bcmath,
+  // intl, pcntl, pdo_pgsql, pgsql, redis, zip, Zend OPcache.
+  "intelephense.stubs": [
+    "apache", "bcmath", "bz2", "calendar", "com_dotnet", "Core", "ctype",
+    "curl", "date", "dba", "dom", "enchant", "exif", "FFI", "fileinfo",
+    "filter", "fpm", "ftp", "gd", "gettext", "gmp", "hash", "iconv", "imap",
+    "intl", "json", "ldap", "libxml", "mbstring", "meta", "mysqli", "oci8",
+    "odbc", "openssl", "pcntl", "pcre", "PDO", "pdo_ibm", "pdo_mysql",
+    "pdo_pgsql", "pdo_sqlite", "pgsql", "Phar", "posix", "pspell", "readline",
+    "redis", "Reflection", "session", "shmop", "SimpleXML", "snmp", "soap",
+    "sockets", "sodium", "SPL", "sqlite3", "standard", "superglobals",
+    "sysvmsg", "sysvsem", "sysvshm", "tidy", "tokenizer", "xml", "xmlreader",
+    "xmlwriter", "xsl", "Zend OPcache", "zip", "zlib"
+  ],
+
+  // Laravel's vendor/ and React Native's node_modules are enormous. Excluding
+  // them from search and from the file watcher keeps the editor responsive;
+  // Intelephense still indexes vendor/ for autocompletion.
+  "search.exclude": {
+    "**/vendor": true,
+    "**/node_modules": true,
+    "**/storage/framework": true,
+    "**/public/build": true
+  },
+  "files.watcherExclude": {
+    "**/vendor/**": true,
+    "**/node_modules/**": true,
+    "**/storage/framework/**": true
+  },
+
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false
+  }
+}

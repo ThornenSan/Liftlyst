@@ -1,0 +1,19 @@
+{
+  // Suggested to anyone who opens this repo. Nothing is installed automatically;
+  // VS Code simply offers them once.
+  "recommendations": [
+    // Applies .editorconfig — without it that file has no effect at all.
+    "editorconfig.editorconfig",
+
+    // Backend
+    "bmewburn.vscode-intelephense-client",
+    "laravel.vscode-laravel",
+
+    // Mobile
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+
+    // Local environment
+    "docker.docker"
+  ]
+}

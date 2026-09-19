@@ -10,6 +10,7 @@ services:
       # This path MUST match nginx's mount below. nginx sends php-fpm a file
       # path over FastCGI, and php-fpm opens that path in its own filesystem.
       - ./backend:/var/www/html
+      - ./docker/php/conf.d/zz-liftlyst.ini:/usr/local/etc/php/conf.d/zz-liftlyst.ini:ro
     depends_on:
       postgres:
         condition: service_healthy

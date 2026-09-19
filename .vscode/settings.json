@@ -42,5 +42,17 @@
   "files.insertFinalNewline": true,
   "[markdown]": {
     "files.trimTrailingWhitespace": false
+  },
+
+  // Format PHP with Pint on save, so unformatted code never reaches a commit.
+  // Runs against the host PHP rather than the container: Pint is pure PHP with
+  // no extension requirements, and docker exec on every save is noticeably slow.
+  // The container remains the source of truth — CI and `make lint` run it there.
+  "laravel-pint.enable": true,
+  "laravel-pint.executablePath": "backend/vendor/bin/pint",
+  "laravel-pint.configPath": "backend/pint.json",
+  "[php]": {
+    "editor.defaultFormatter": "open-southeners.laravel-pint",
+    "editor.formatOnSave": true
   }
 }

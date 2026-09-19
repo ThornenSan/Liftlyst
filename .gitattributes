@@ -1,0 +1,6 @@
+# Normalise line endings in the repository, and force LF in the working
+# directory where CRLF would break execution regardless of platform.
+* text=auto
+
+.githooks/** text eol=lf
+*.sh         text eol=lf

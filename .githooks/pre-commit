@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+# Nothing to check unless backend PHP files are staged.
+git diff --cached --name-only --diff-filter=ACM | grep -q '^backend/.*\.php$' || exit 0
+
+# Skip rather than block when the stack is down. Also covers docker missing
+# entirely, since the command then fails and matches nothing. CI is the real gate.
+docker compose ps --services --status running 2>/dev/null | grep -qx app || {
+    echo "pre-commit: app container not running, skipping Pint." >&2
+    exit 0
+}
+
+docker compose exec -T app ./vendor/bin/pint --test || {
+    echo "pre-commit: run 'make format', stage the changes, then commit again." >&2
+    exit 1
+}

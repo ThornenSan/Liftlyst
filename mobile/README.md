@@ -1,97 +1,87 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Liftlyst — mobile
 
-# Getting Started
+React Native client for [Liftlyst](../README.md). Project-wide setup is in the
+root README; this covers what is specific to the app.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Running
 
-## Step 1: Start Metro
-
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
-
-To start the Metro dev server, run the following command from the root of your React Native project:
+The backend must be up first — the app calls it on launch:
 
 ```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+make up          # from the repo root
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
+Then, from `mobile/`:
 
 ```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+npm start        # Metro — leave this running
+npm run ios      # iOS simulator
+npm run android  # Android emulator
 ```
 
-### iOS
+## Connecting to the backend
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+The API base URL is resolved in `src/config/env.ts`:
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+| Running on       | Base URL                            | Why                                                                                                                       |
+| ---------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| iOS simulator    | `http://localhost:8080/api/v1`      | Shares the host's network stack                                                                                           |
+| Android emulator | `http://10.0.2.2:8080/api/v1`       | The emulator is a VM, so its own `localhost` is the emulator. `10.0.2.2` is the alias it maps to the host's loopback.      |
+| Physical device  | `http://<your-LAN-IP>:8080/api/v1`  | Neither default works. The device and your machine must be on the same network.                                            |
+
+**Both simulators work with no configuration.** Only set `API_BASE_URL` when
+neither default applies — a physical device, or a remote host. Copy
+`.env.example` to `.env` and fill it in:
 
 ```sh
-bundle install
+# macOS
+ipconfig getifaddr en0
+
+# Linux
+hostname -I | awk '{print $1}'
+
+# Windows (PowerShell)
+(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Wi-Fi').IPAddress
 ```
 
-Then, and every time you update your native dependencies, run:
+Only iOS builds require macOS — the Android side works on Windows and Linux too.
+
+`react-native-config` reads `.env` at **build time, not runtime**. Editing it and
+reloading does nothing; you need a rebuild:
 
 ```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+npm start -- --reset-cache
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+The resolved base URL is displayed on the home screen, which is the quickest way
+to confirm which one the app actually picked.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## Layout
 
-## Step 3: Modify your app
+```text
+src/
+├── api/       client.ts plus one module per resource
+├── config/    env.ts — base URL resolution
+└── screens/
+```
 
-Now that you have successfully run the app, let's make changes!
+Every network call goes through `src/api/client.ts`. It adds JSON headers and a
+request timeout, and it distinguishes two failure kinds that callers must treat
+differently:
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+- **`NetworkError`** — the request never reached the server (offline, DNS, or
+  timed out). Retryable.
+- **`ApiError`** — the server answered with a failure status. Retry only on 5xx;
+  a 4xx will never succeed.
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+The offline sync layer depends on that distinction to decide what to retry.
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## Scripts
 
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+| Command                           | Does             |
+| --------------------------------- | ---------------- |
+| `npm start`                       | Metro bundler    |
+| `npm run ios` / `npm run android` | Build and run    |
+| `npm run lint`                    | ESLint           |
+| `npm test`                        | Jest             |

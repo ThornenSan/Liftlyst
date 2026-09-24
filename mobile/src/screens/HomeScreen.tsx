@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ExercisesSection } from '../components/ExcercisesSection';
 
 import { ApiError, NetworkError } from '../api/client';
 import { fetchHealth } from '../api/health';
@@ -95,6 +96,8 @@ export function HomeScreen() {
             )}
           </View>
         )}
+
+        <ExercisesSection />
       </View>
     </SafeAreaView>
   );
@@ -107,7 +110,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     gap: 12,
     padding: 24,
   },

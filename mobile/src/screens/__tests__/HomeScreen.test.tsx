@@ -7,6 +7,10 @@ import { HomeScreen } from '../HomeScreen';
 // Mock the module, not fetch: this test is about how the screen reacts to each
 // outcome, and client.test.ts already covers turning responses into outcomes.
 jest.mock('../../api/health');
+jest.mock('../../db/exerciseRepository', () => ({
+  listExercises: jest.fn().mockResolvedValue([]),
+  createExercise: jest.fn(),
+}));
 const mockedFetchHealth = jest.mocked(fetchHealth);
 
 describe('HomeScreen', () => {

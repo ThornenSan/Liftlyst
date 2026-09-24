@@ -15,3 +15,7 @@ jest.mock('react-native-safe-area-context', () => {
 
   return { ...mock, SafeAreaView: View };
 });
+
+jest.mock('@op-engineering/op-sqlite', () => ({
+  open: jest.fn(),
+}));

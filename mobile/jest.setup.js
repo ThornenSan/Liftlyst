@@ -19,3 +19,7 @@ jest.mock('react-native-safe-area-context', () => {
 jest.mock('@op-engineering/op-sqlite', () => ({
   open: jest.fn(),
 }));
+
+jest.mock('@react-native-community/netinfo', () =>
+  require('@react-native-community/netinfo/jest/netinfo-mock.js'),
+);

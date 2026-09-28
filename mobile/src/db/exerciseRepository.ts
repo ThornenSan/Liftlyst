@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { getDatabase } from './index';
 import type { ExerciseRow, SyncStatus } from './types';
+import { notifyExercisesChanged } from './exerciseEvents';
 
 export type Exercise = {
   uuid: string;
@@ -58,6 +59,8 @@ export async function createExercise(name: string): Promise<Exercise> {
     [exercise.uuid, exercise.name, exercise.syncStatus, exercise.updatedAt],
   );
 
+  notifyExercisesChanged('created');
+
   return exercise;
 }
 
@@ -77,6 +80,7 @@ export async function markSynced(uuid: string): Promise<void> {
     'synced',
     uuid,
   ]);
+  notifyExercisesChanged('synced');
 }
 
 export async function markFailed(uuid: string): Promise<void> {
@@ -85,4 +89,5 @@ export async function markFailed(uuid: string): Promise<void> {
     'failed',
     uuid,
   ]);
+  notifyExercisesChanged('failed');
 }

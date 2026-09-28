@@ -8,25 +8,39 @@ import {
   View,
 } from 'react-native';
 
+import { onExercisesChanged } from '../db/exerciseEvents';
 import {
   createExercise,
   listExercises,
   type Exercise,
 } from '../db/exerciseRepository';
+import type { SyncStatus } from '../db/types';
+
+/**
+ * Synced records say nothing: sync is meant to be invisible when it works.
+ * Keyed by SyncStatus, so adding a status without deciding how to show it is
+ * a type error.
+ */
+const STATUS_LABEL: Record<SyncStatus, string | null> = {
+  pending: 'Waiting to sync',
+  synced: null,
+  failed: "Couldn't sync",
+};
 
 export function ExercisesSection() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
-  // Bumped after each write so the effect re-reads from SQLite — the same
-  // counter pattern HomeScreen uses for Retry.
   const [version, setVersion] = useState(0);
+
+  // Re-read after any write, from anywhere — including autoSync marking
+  // records synced in the background.
+  useEffect(() => onExercisesChanged(() => setVersion(v => v + 1)), []);
 
   useEffect(() => {
     let cancelled = false;
 
-    // Reads from the local database only. No network is involved, which is
-    // exactly what Task 6.5 sets out to prove.
+    // Local database only — no network involved
     listExercises()
       .then(rows => {
         if (!cancelled) {
@@ -49,17 +63,26 @@ export function ExercisesSection() {
       await createExercise(name);
       setName('');
       setError(null);
-      setVersion(v => v + 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save exercise');
     }
   }
 
   const canAdd = name.trim() !== '';
+  const failedCount = exercises.filter(e => e.syncStatus === 'failed').length;
 
   return (
     <View style={styles.section}>
       <Text style={styles.heading}>Exercises</Text>
+
+      {failedCount > 0 && (
+        <View style={styles.banner} accessibilityRole="alert">
+          <Text style={styles.bannerText}>
+            {failedCount === 1 ? '1 exercise' : `${failedCount} exercises`}{' '}
+            couldn't be saved to your account.
+          </Text>
+        </View>
+      )}
 
       <View style={styles.row}>
         <TextInput
@@ -90,14 +113,19 @@ export function ExercisesSection() {
         // dismisses the keyboard.
         keyboardShouldPersistTaps="handled"
         ListEmptyComponent={<Text style={styles.empty}>No exercises yet</Text>}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={[styles.status, styles[item.syncStatus]]}>
-              {item.syncStatus}
-            </Text>
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const label = STATUS_LABEL[item.syncStatus];
+          return (
+            <View style={styles.item}>
+              <Text style={styles.itemName}>{item.name}</Text>
+              {label !== null && (
+                <Text style={[styles.status, styles[item.syncStatus]]}>
+                  {label}
+                </Text>
+              )}
+            </View>
+          );
+        }}
       />
     </View>
   );
@@ -113,6 +141,16 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: '600',
+  },
+  banner: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#fef2f2',
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  bannerText: {
+    color: '#991b1b',
   },
   row: {
     flexDirection: 'row',
@@ -130,6 +168,7 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 8,
     backgroundColor: '#1f2937',
   },
@@ -151,6 +190,7 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#e5e7eb',
@@ -161,11 +201,8 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 12,
     fontWeight: '600',
-    textTransform: 'uppercase',
   },
-  // Keyed by SyncStatus, so styles[item.syncStatus] picks the colour. Adding
-  // a new status without a style here is a type error, not a silent default.
-  pending: { color: '#b45309' },
+  pending: { color: '#9ca3af' },
   synced: { color: '#15803d' },
   failed: { color: '#b91c1c' },
 });

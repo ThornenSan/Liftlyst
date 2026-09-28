@@ -92,3 +92,10 @@ async function request<T>(
 
 export const get = <T>(path: string, options?: RequestOptions): Promise<T> =>
   request<T>(path, { ...options, method: 'GET' });
+
+export const post = <T>(
+  path: string,
+  body: unknown,
+  options?: RequestOptions,
+): Promise<T> =>
+  request<T>(path, { ...options, body: JSON.stringify(body), method: 'POST' });

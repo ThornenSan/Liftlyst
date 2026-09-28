@@ -57,6 +57,40 @@ npm run ios
 The resolved base URL is displayed on the home screen, which is the quickest way
 to confirm which one the app actually picked.
 
+## Storybook
+
+Components can be developed in isolation with on-device Storybook. It replaces
+the app in the simulator while it is running — the same build, a different
+entry point.
+
+```sh
+npm run storybook   # terminal 1: Metro with Storybook enabled
+npm run ios         # terminal 2 (or: npm run android)
+```
+
+Switching back to the app needs Metro's cache cleared, or it may keep serving
+the Storybook bundle:
+
+```sh
+npm start -- --reset-cache
+```
+
+Stories live next to the component they document (`src/components/Button.stories.tsx`).
+After adding or removing a story file, regenerate the story list:
+
+```sh
+npm run storybook:generate
+```
+
+How it works: `withStorybook` in `metro.config.js` swaps the app entry
+(`index.js`) for `.rnstorybook/index.ts` only when `STORYBOOK_ENABLED=true`.
+Without it, Storybook is left out of the bundle entirely, so it never ships in
+a release build. Because `index.js` is swapped out, anything it sets up — the
+`react-native-get-random-values` polyfill — is repeated in `.rnstorybook/index.ts`.
+
+It uses the lite UI, which needs no extra native modules. The full UI depends
+on Reanimated, which does not yet support this React Native version.
+
 ## Layout
 
 ```text
@@ -79,9 +113,14 @@ The offline sync layer depends on that distinction to decide what to retry.
 
 ## Scripts
 
-| Command                           | Does             |
-| --------------------------------- | ---------------- |
-| `npm start`                       | Metro bundler    |
-| `npm run ios` / `npm run android` | Build and run    |
-| `npm run lint`                    | ESLint           |
-| `npm test`                        | Jest             |
+| Command | Does |
+| --- | --- |
+| `npm start` | Metro bundler |
+| `npm run ios` / `npm run android` | Build and run |
+| `npm run check` | Type-check, lint and test — run before pushing |
+| `npm run typecheck` | TypeScript, including `.rnstorybook/` |
+| `npm run lint` | ESLint, which also enforces Prettier formatting |
+| `npm run format` | Apply Prettier formatting |
+| `npm test` | Jest |
+| `npm run storybook` | Metro with Storybook enabled |
+| `npm run storybook:generate` | Regenerate the story list |

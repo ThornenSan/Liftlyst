@@ -1,3 +1,5 @@
+const { withStorybook } = require('@storybook/react-native/withStorybook');
+
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 
 /**
@@ -8,4 +10,12 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
  */
 const config = {};
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+module.exports = withStorybook(
+  mergeConfig(getDefaultConfig(__dirname), config),
+  {
+    // Strips Storybook out of the bundle, so it can never end up
+    // in a release build.
+    enabled: process.env.STORYBOOK_ENABLED === 'true',
+    liteMode: true,
+  },
+);

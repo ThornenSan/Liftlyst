@@ -1,13 +1,8 @@
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExercisesSection } from '../components/ExercisesSection';
+import { Button } from '../components/Button';
 
 import { ApiError, NetworkError } from '../api/client';
 import { fetchHealth } from '../api/health';
@@ -87,12 +82,7 @@ export function HomeScreen() {
           <View style={styles.errorBox}>
             <Text style={styles.error}>{state.message}</Text>
             {state.retryable && (
-              <Pressable
-                style={styles.button}
-                onPress={() => setAttempt(n => n + 1)}
-              >
-                <Text style={styles.buttonText}>Retry</Text>
-              </Pressable>
+              <Button label="Retry" onPress={() => setAttempt(n => n + 1)} />
             )}
           </View>
         )}
@@ -134,15 +124,5 @@ const styles = StyleSheet.create({
   error: {
     fontSize: 16,
     color: '#b91c1c',
-  },
-  button: {
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    backgroundColor: '#1f2937',
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontWeight: '600',
   },
 });

@@ -1,12 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { onExercisesChanged } from '../db/exerciseEvents';
 import {
@@ -15,6 +8,7 @@ import {
   type Exercise,
 } from '../db/exerciseRepository';
 import type { SyncStatus } from '../db/types';
+import { Button } from './Button';
 
 /**
  * Synced records say nothing: sync is meant to be invisible when it works.
@@ -94,14 +88,7 @@ export function ExercisesSection() {
           accessibilityLabel="Exercise name"
           returnKeyType="done"
         />
-        <Pressable
-          style={[styles.button, !canAdd && styles.buttonDisabled]}
-          onPress={add}
-          disabled={!canAdd}
-          accessibilityRole="button"
-        >
-          <Text style={styles.buttonText}>Add</Text>
-        </Pressable>
+        <Button label="Add" onPress={add} disabled={!canAdd} />
       </View>
 
       {error !== null && <Text style={styles.error}>{error}</Text>}
@@ -164,20 +151,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-  },
-  button: {
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#1f2937',
-  },
-  buttonDisabled: {
-    opacity: 0.4,
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontWeight: '600',
   },
   error: {
     color: '#b91c1c',

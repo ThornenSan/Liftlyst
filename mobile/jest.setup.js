@@ -23,3 +23,10 @@ jest.mock('@op-engineering/op-sqlite', () => ({
 jest.mock('@react-native-community/netinfo', () =>
   require('@react-native-community/netinfo/jest/netinfo-mock.js'),
 );
+
+// Gesture Handler ships its own Jest setup, which mocks its native module.
+require('react-native-gesture-handler/jestSetup');
+
+// With the resolver in jest.config.js, the real Reanimated runs on its
+// JavaScript implementation. setUpTests adds its testing helpers.
+require('react-native-reanimated').setUpTests();

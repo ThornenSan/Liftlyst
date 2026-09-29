@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { onExercisesChanged } from '../db/exerciseEvents';
 import {
@@ -70,12 +71,16 @@ export function ExercisesSection() {
       <Text style={styles.heading}>Exercises</Text>
 
       {failedCount > 0 && (
-        <View style={styles.banner} accessibilityRole="alert">
+        <Animated.View
+          entering={FadeIn}
+          style={styles.banner}
+          accessibilityRole="alert"
+        >
           <Text style={styles.bannerText}>
             {failedCount === 1 ? '1 exercise' : `${failedCount} exercises`}{' '}
             couldn't be saved to your account.
           </Text>
-        </View>
+        </Animated.View>
       )}
 
       <View style={styles.row}>

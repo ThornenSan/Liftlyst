@@ -11,6 +11,7 @@ import { startAutoSync } from './src/sync/autoSync';
 
 import { HomeScreen } from './src/screens/HomeScreen';
 import { useEffect } from 'react';
+import './global.css';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';

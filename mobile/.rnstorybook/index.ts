@@ -3,6 +3,7 @@ import { LiteUI } from '@storybook/react-native-ui-lite';
 
 import { view } from './storybook.requires';
 import { name as appName } from '../app.json';
+import '../global.css';
 
 /**
  * This file is user-editable.

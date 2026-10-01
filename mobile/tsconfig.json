@@ -4,7 +4,11 @@
     "**/*.ts",
     "**/*.tsx",
     ".rnstorybook/**/*.ts",
-    ".rnstorybook/**/*.tsx"
+    ".rnstorybook/**/*.tsx",
+    "nativewind-env.d.ts"
   ],
-  "exclude": ["**/node_modules", "**/Pods"]
+  "exclude": [
+    "**/node_modules",
+    "**/Pods"
+  ]
 }

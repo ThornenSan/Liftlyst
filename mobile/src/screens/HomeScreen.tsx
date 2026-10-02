@@ -68,7 +68,7 @@ export function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <View style={styles.container}>
-        <Text className="text-3xl font-bold">Liftlyst</Text>
+        <Text className="text-3xl font-bold text-primary">Liftlyst</Text>
 
         <Text style={styles.baseUrl}>{API_BASE_URL}</Text>
 

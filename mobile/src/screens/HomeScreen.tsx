@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExercisesSection } from '../components/ExercisesSection';
 import { Button } from '../components/Button';
@@ -8,9 +8,6 @@ import { ApiError, NetworkError } from '../api/client';
 import { fetchHealth } from '../api/health';
 import { API_BASE_URL } from '../config/env';
 
-/**
- *
- */
 type State =
   | { kind: 'loading' }
   | { kind: 'ok'; status: string }
@@ -66,21 +63,23 @@ export function HomeScreen() {
   }, [attempt]);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      <View style={styles.container}>
+    <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
+      <View className="flex-1 items-center justify-center gap-3 p-6">
         <Text className="text-3xl font-bold text-primary">Liftlyst</Text>
 
-        <Text style={styles.baseUrl}>{API_BASE_URL}</Text>
+        <Text className="mb-3 text-xs opacity-60">{API_BASE_URL}</Text>
 
         {state.kind === 'loading' && <ActivityIndicator size="large" />}
 
         {state.kind === 'ok' && (
-          <Text style={styles.ok}>API status: {state.status}</Text>
+          <Text className="text-lg text-success">
+            API status: {state.status}
+          </Text>
         )}
 
         {state.kind === 'error' && (
-          <View style={styles.errorBox}>
-            <Text style={styles.error}>{state.message}</Text>
+          <View className="items-center gap-3">
+            <Text className="text-base text-danger">{state.message}</Text>
             {state.retryable && (
               <Button label="Retry" onPress={() => setAttempt(n => n + 1)} />
             )}
@@ -92,37 +91,3 @@ export function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    gap: 12,
-    padding: 24,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-  },
-  baseUrl: {
-    fontSize: 12,
-    opacity: 0.6,
-    marginBottom: 12,
-  },
-  ok: {
-    fontSize: 18,
-    color: '#15803d',
-  },
-  errorBox: {
-    alignItems: 'center',
-    gap: 12,
-  },
-  error: {
-    fontSize: 16,
-    color: '#b91c1c',
-  },
-});

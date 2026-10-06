@@ -1,10 +1,5 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { clsx } from 'clsx';
 
 export type ButtonVariant = 'primary' | 'secondary';
 
@@ -16,6 +11,17 @@ export type ButtonProps = {
   loading?: boolean;
 };
 
+// Class names are written out in full so Tailwind can find them
+const CONTAINER: Record<ButtonVariant, string> = {
+  primary: 'bg-primary border-primary',
+  secondary: 'bg-transparent border-primary',
+};
+
+const FOREGROUND: Record<ButtonVariant, string> = {
+  primary: 'text-on-primary',
+  secondary: 'text-primary',
+};
+
 export function Button({
   label,
   onPress,
@@ -24,7 +30,6 @@ export function Button({
   loading = false,
 }: ButtonProps) {
   const inactive = disabled || loading;
-  const isPrimary = variant === 'primary';
 
   return (
     <Pressable
@@ -34,28 +39,28 @@ export function Button({
       // The spinner hides the label visually, so screen readers still need it.
       accessibilityLabel={label}
       accessibilityState={{ disabled: inactive, busy: loading }}
-      style={({ pressed }) => [
-        styles.base,
-        isPrimary ? styles.primary : styles.secondary,
-        disabled && styles.disabled,
-        pressed && !inactive && styles.pressed,
-      ]}
+      // min-h-11 is 44pt, Apple's minimum comfortable touch target
+      className={clsx(
+        'items-center, min-h-11 justify-center rounded-lg border px-5 active:opacity-80',
+        CONTAINER[variant],
+        disabled && 'opacity-40',
+      )}
     >
       {/* The label stays rendered while loading, just invisible, so the
           button keeps its width instead of shrinking around the spinner. */}
       <Text
-        style={[
-          styles.label,
-          isPrimary ? styles.primaryLabel : styles.secondaryLabel,
-          loading && styles.hidden,
-        ]}
+        className={clsx(
+          'text-base font-semibold',
+          FOREGROUND[variant],
+          loading && 'opacity-0',
+        )}
       >
         {label}
       </Text>
       {loading && (
-        <View style={styles.spinner}>
+        <View className="absolute inset-0 items-center justify-center">
           <ActivityIndicator
-            color={isPrimary ? '#ffffff' : '#1f2937'}
+            className={FOREGROUND[variant]}
             testID="button-spinner"
           />
         </View>
@@ -63,46 +68,3 @@ export function Button({
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    minHeight: 44, // Apple's minimum comfortable touch target
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primary: {
-    backgroundColor: '#1f2937',
-    borderColor: '#1f2937',
-  },
-  secondary: {
-    backgroundColor: 'transparent',
-    borderColor: '#1f2937',
-  },
-  disabled: {
-    opacity: 0.4,
-  },
-  pressed: {
-    opacity: 0.8,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  primaryLabel: {
-    color: '#ffffff',
-  },
-  secondaryLabel: {
-    color: '#1f2937',
-  },
-  hidden: {
-    opacity: 0,
-  },
-  spinner: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

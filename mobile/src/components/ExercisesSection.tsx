@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Text, TextInput, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { onExercisesChanged } from '../db/exerciseEvents';
@@ -10,6 +10,7 @@ import {
 } from '../db/exerciseRepository';
 import type { SyncStatus } from '../db/types';
 import { Button } from './Button';
+import { clsx } from 'clsx';
 
 /**
  * Synced records say nothing: sync is meant to be invisible when it works.
@@ -20,6 +21,12 @@ const STATUS_LABEL: Record<SyncStatus, string | null> = {
   pending: 'Waiting to sync',
   synced: null,
   failed: "Couldn't sync",
+};
+
+const STATUS_CLASS: Record<SyncStatus, string> = {
+  pending: 'text-muted',
+  synced: 'text-success',
+  failed: 'text-danger',
 };
 
 export function ExercisesSection() {
@@ -67,25 +74,25 @@ export function ExercisesSection() {
   const failedCount = exercises.filter(e => e.syncStatus === 'failed').length;
 
   return (
-    <View style={styles.section}>
-      <Text style={styles.heading}>Exercises</Text>
+    <View className="mt-6 flex-1 gap-3 self-stretch">
+      <Text className="text-xl font-semibold">Exercises</Text>
 
       {failedCount > 0 && (
-        <Animated.View
-          entering={FadeIn}
-          style={styles.banner}
-          accessibilityRole="alert"
-        >
-          <Text style={styles.bannerText}>
-            {failedCount === 1 ? '1 exercise' : `${failedCount} exercises`}{' '}
-            couldn't be saved to your account.
-          </Text>
+        // Reanimated's Animated.View is not registered with NativeWind, so a
+        // className on it would be ignored: it animates, the inner View styles.
+        <Animated.View entering={FadeIn} accessibilityRole="alert">
+          <View className="broder rounded-lg border-danger-border bg-danger-surface p-3">
+            <Text className="text-danger-strong">
+              {failedCount === 1 ? '1 exercise' : `${failedCount} exercises`}{' '}
+              couldn't be saved to your account.
+            </Text>
+          </View>
         </Animated.View>
       )}
 
-      <View style={styles.row}>
+      <View className="flex-row gap-2">
         <TextInput
-          style={styles.input}
+          className="flex-1 border border-border px-3 py-2.5 text-base"
           value={name}
           onChangeText={setName}
           onSubmitEditing={add}
@@ -96,7 +103,7 @@ export function ExercisesSection() {
         <Button label="Add" onPress={add} disabled={!canAdd} />
       </View>
 
-      {error !== null && <Text style={styles.error}>{error}</Text>}
+      {error !== null && <Text className="text-danger">{error}</Text>}
 
       <FlatList
         data={exercises}
@@ -104,14 +111,21 @@ export function ExercisesSection() {
         // Without this, the first tap on Add while the keyboard is open only
         // dismisses the keyboard.
         keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={<Text style={styles.empty}>No exercises yet</Text>}
+        ListEmptyComponent={
+          <Text className="mt-3 text-center opacity-60">No exercises yet</Text>
+        }
         renderItem={({ item }) => {
           const label = STATUS_LABEL[item.syncStatus];
           return (
-            <View style={styles.item}>
-              <Text style={styles.itemName}>{item.name}</Text>
+            <View className="border-b-hairline flex-row items-center justify-between border-b-divider py-3">
+              <Text className="text-base">{item.name}</Text>
               {label !== null && (
-                <Text style={[styles.status, styles[item.syncStatus]]}>
+                <Text
+                  className={clsx(
+                    'text-xs font-semibold',
+                    STATUS_CLASS[item.syncStatus],
+                  )}
+                >
                   {label}
                 </Text>
               )}
@@ -122,65 +136,3 @@ export function ExercisesSection() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    alignSelf: 'stretch',
-    flex: 1,
-    gap: 12,
-    marginTop: 24,
-  },
-  heading: {
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  banner: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#fef2f2',
-    borderWidth: 1,
-    borderColor: '#fecaca',
-  },
-  bannerText: {
-    color: '#991b1b',
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  error: {
-    color: '#b91c1c',
-  },
-  empty: {
-    marginTop: 12,
-    textAlign: 'center',
-    opacity: 0.6,
-  },
-  item: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e5e7eb',
-  },
-  itemName: {
-    fontSize: 16,
-  },
-  status: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  pending: { color: '#9ca3af' },
-  synced: { color: '#15803d' },
-  failed: { color: '#b91c1c' },
-});

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { fn } from 'storybook/test';
 
 import { Button } from './Button';
@@ -9,7 +9,7 @@ const meta = {
   component: Button,
   decorators: [
     Story => (
-      <View style={styles.canvas}>
+      <View className="items-start p-4">
         <Story />
       </View>
     ),
@@ -35,10 +35,3 @@ export const Disabled: Story = {
 export const Loading: Story = {
   args: { loading: true },
 };
-
-const styles = StyleSheet.create({
-  canvas: {
-    padding: 16,
-    alignItems: 'flex-start',
-  },
-});

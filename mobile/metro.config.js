@@ -19,5 +19,8 @@ module.exports = withNativeWind(
   }),
   {
     input: './global.css',
+    // NativeWind's native default is 14px, which shrinks every rem-based class
+    // (min-h-11 → 38.5pt) and diverges from the web. 16 matches Tailwind's docs.
+    inlineRem: 16,
   },
 );

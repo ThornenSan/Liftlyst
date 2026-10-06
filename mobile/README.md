@@ -23,11 +23,11 @@ npm run android  # Android emulator
 
 The API base URL is resolved in `src/config/env.ts`:
 
-| Running on       | Base URL                            | Why                                                                                                                       |
-| ---------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| iOS simulator    | `http://localhost:8080/api/v1`      | Shares the host's network stack                                                                                           |
-| Android emulator | `http://10.0.2.2:8080/api/v1`       | The emulator is a VM, so its own `localhost` is the emulator. `10.0.2.2` is the alias it maps to the host's loopback.      |
-| Physical device  | `http://<your-LAN-IP>:8080/api/v1`  | Neither default works. The device and your machine must be on the same network.                                            |
+| Running on       | Base URL                           | Why                                                                                                                   |
+| ---------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| iOS simulator    | `http://localhost:8080/api/v1`     | Shares the host's network stack                                                                                       |
+| Android emulator | `http://10.0.2.2:8080/api/v1`      | The emulator is a VM, so its own `localhost` is the emulator. `10.0.2.2` is the alias it maps to the host's loopback. |
+| Physical device  | `http://<your-LAN-IP>:8080/api/v1` | Neither default works. The device and your machine must be on the same network.                                       |
 
 **Both simulators work with no configuration.** Only set `API_BASE_URL` when
 neither default applies — a physical device, or a remote host. Copy
@@ -113,14 +113,15 @@ The offline sync layer depends on that distinction to decide what to retry.
 
 ## Scripts
 
-| Command | Does |
-| --- | --- |
-| `npm start` | Metro bundler |
-| `npm run ios` / `npm run android` | Build and run |
-| `npm run check` | Type-check, lint and test — run before pushing |
-| `npm run typecheck` | TypeScript, including `.rnstorybook/` |
-| `npm run lint` | ESLint, which also enforces Prettier formatting |
-| `npm run format` | Apply Prettier formatting |
-| `npm test` | Jest |
-| `npm run storybook` | Metro with Storybook enabled |
-| `npm run storybook:generate` | Regenerate the story list |
+| Command                           | Does                                                         |
+| --------------------------------- | ------------------------------------------------------------ |
+| `npm start`                       | Metro bundler                                                |
+| `npm run ios` / `npm run android` | Build and run                                                |
+| `npm run check`                   | Type-check, lint, format check and test — run before pushing |
+| `npm run typecheck`               | TypeScript, including `.rnstorybook/`                        |
+| `npm run lint`                    | ESLint                                                       |
+| `npm run format`                  | Apply Prettier formatting (also sorts Tailwind classes)      |
+| `npm run format:check`            | Fail if any file is not formatted                            |
+| `npm test`                        | Jest                                                         |
+| `npm run storybook`               | Metro with Storybook enabled                                 |
+| `npm run storybook:generate`      | Regenerate the story list                                    |

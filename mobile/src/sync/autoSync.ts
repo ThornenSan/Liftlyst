@@ -23,7 +23,7 @@ export function startAutoSync(): () => void {
     const wasOffline = offline;
     offline = state.isConnected === false;
 
-    // Example walking out of basement: push everything 
+    // Example walking out of basement: push everything
     if (wasOffline && !offline) {
       requestSync();
     }

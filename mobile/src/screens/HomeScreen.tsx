@@ -63,10 +63,9 @@ export function HomeScreen() {
   }, [attempt]);
 
   return (
-    <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
-      <View className="flex-1 items-center justify-center gap-3 p-6">
-        <Text className="text-3xl font-bold text-primary">Liftlyst</Text>
-
+    <SafeAreaView className="flex-1" edges={['bottom']}>
+      <View className="flex-1 items-center gap-3 p-6">
+        {/* title Text removed — the native header shows "Liftlyst" now */}
         <Text className="mb-3 text-xs opacity-60">{API_BASE_URL}</Text>
 
         {state.kind === 'loading' && <ActivityIndicator size="large" />}
